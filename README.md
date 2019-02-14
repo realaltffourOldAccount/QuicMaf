@@ -1,0 +1,2 @@
+# QuicMaf
+An algebric Calculator
