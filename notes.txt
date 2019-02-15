@@ -1,0 +1,87 @@
+
+In all equations the goal is the same, finding the unknown, 
+Between every term there must be a space ex:
+x = 50
+x = x - 50
+x - 10 = 50
+x - 10 = x - 50
+5x = 50
+5x = x - 50
+5x - 10 = 50
+5x - 10 = x - 50
+
+BEDMAS
+
+2(x^2 + 50) = 50 + x
+-2(x^2 + 50) is a term
+-50 is a term
+-x is a term
+
+- Term:
+	- Variable
+	- Value
+	- Power
+
+- Constant:
+	- Value
+	- Power
+
+- Variable:
+	- Value
+	- Char var
+	- Power
+
+- Operator:
+	- char
+
+- Bracket:
+	- Value
+	- Terms vector
+
+- Equation:
+	- lwing		// Contains list of terms on the left side of the equation
+	- rwing		// Conatins list of terms on the right side of the equation
+	// lwing = rwing
+
+Parsing Algorithim:
+	- split the terms in the term of spaces
+	- iterate over the terms, call the iterator mTerm:
+		- if there exists an opening bracket in the mTerm
+			- split upon the bracket
+			- make the coefficient of the bracket the first item in the split,
+			- make the other terms in the mTerms vector.
+			- consume the other terms until a closing bracket is found.
+			*- if the bracket is found delete the char and convert normally to valid term and append.
+			- add the bracket to the list of terms in the correct wing.
+		- if mTerm contains a '^':
+			- if a character is detected:
+				- split upon the power.
+				- the first split is converted to a variable.
+				- the second split is added to the power of the variable.
+				- add the variable to the list of the terms in the correct wing.
+			- if all of the mTerm is digits with '^':
+				- split upon the power.
+				- the fist split is converted to a constant.
+				- the second split is added to the power of the variable.
+				- add the constant to the list of the terms in the correct wing.
+		- if mTerm is all digits:
+			- convert to a constant.
+			- add the constant to the list of the terms in the correct wing.
+		- if mTerm contains a character:
+			- convert to a variable.
+			- add the constant to the list of the terms in the correct wing.
+		- if mTerm is an Operator:
+			- convert to an operator;
+			- add the operator to the list of the terms in the correct wing.
+		- if the mTerm is an equality operator:
+			- switch the bool of lwing_turn.
+
+
+Initialization:
+1. Seperate the terms.
+2. Put the lwing and rwing correctly.
+3. Put all of the data in memory correctly
+
+In Case of One unknown:
+1. Swap like terms to keep the unknowns in one side and constants on other.
+2. Combine the terms
