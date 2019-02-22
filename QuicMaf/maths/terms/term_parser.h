@@ -21,6 +21,7 @@ using namespace std;
 struct Token {
 	unsigned int begin = 0;
 	unsigned int end = 0;
+
 };
 
 string retrieveSubString(string str, Token token) {

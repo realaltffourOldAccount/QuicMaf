@@ -119,19 +119,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
-    <ClCompile Include="EquationAdv.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EquationAdv.h" />
     <ClInclude Include="maths\defines.h" />
-    <ClInclude Include="maths\Equation.h" />
     <ClInclude Include="maths\terms\Brackets.h" />
     <ClInclude Include="maths\terms\Constant.h" />
     <ClInclude Include="maths\terms\Equal.h" />
     <ClInclude Include="maths\terms\Operator.h" />
+    <ClInclude Include="maths\terms\Paranthesis.h" />
     <ClInclude Include="maths\terms\Term.h" />
     <ClInclude Include="maths\terms\term_parser.h" />
     <ClInclude Include="maths\terms\Variable.h" />
+    <ClInclude Include="maths\tokenizer.h" />
+    <ClInclude Include="vendor\lexertk.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -18,39 +18,39 @@
     <ClCompile Include="app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EquationAdv.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="maths\defines.h">
+    <ClInclude Include="maths\tokenizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="maths\terms\Term.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="maths\terms\Constant.h">
+    <ClInclude Include="vendor\lexertk.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="maths\terms\Variable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="maths\terms\term_parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="maths\terms\Term.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="maths\terms\Operator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="maths\Equation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="maths\terms\Brackets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="maths\terms\Equal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="maths\terms\term_parser.h">
+    <ClInclude Include="maths\terms\Constant.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EquationAdv.h">
+    <ClInclude Include="maths\terms\Brackets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="maths\defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="maths\terms\Paranthesis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
