@@ -18,16 +18,24 @@
 
 class QMRuleSet {
 public:
-	void push_back(QMRule rule);
-	void push_front(QMRule rule);
+	void push_back(QMRule rule) { mRuleSet.push_back(rule); }
+	void push_front(QMRule rule) { mRuleSet.push_front(rule); }
 
-	void pop_back(QMRule rule);
-	void pop_front(QMRule rule);
+	void pop_back() { mRuleSet.pop_back(); };
+	void pop_front() { mRuleSet.pop_front(); }
 
-	void order();
+	QMRule back() { return mRuleSet[mRuleSet.size() - 1]; }
+	QMRule front() { return mRuleSet[0]; }
+
+	void order() {
+		stable_sort(mRuleSet.begin(), mRuleSet.end());
+	}
 
 	auto GetRuleSet() { return mRuleSet; }
 
+	inline QMRule& operator[](int index) {
+		return mRuleSet[index];
+	}
 private:
 	deque<QMRule> mRuleSet;
 };

@@ -120,7 +120,7 @@
   <ItemGroup>
     <ClCompile Include="app.cpp" />
     <ClCompile Include="maths\solver\Solver.cpp" />
-    <ClCompile Include="maths\solver\term_rewriter\QMRule.cpp" />
+    <ClCompile Include="maths\solver\term_rewriter\QMReducer.cpp" />
     <ClCompile Include="maths\solver\term_rewriter\QMRule.h" />
   </ItemGroup>
   <ItemGroup>

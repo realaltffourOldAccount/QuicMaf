@@ -60,12 +60,7 @@ public:
 	bool operator<(const QMRule& left) const {
 		return (left.mPrior < mPrior);
 	}
-
-	vector<Term*> Reduce(vector<Term*> terms); // applies self rule on terms vector, only once
 private:
-	vector<Term*> Evaluate();	// evaluation method
-	
-
 	vector<int> mRules;
 	vector<int> mProps;
 	int mPrior;

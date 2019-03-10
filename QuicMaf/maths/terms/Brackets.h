@@ -30,6 +30,6 @@ public:
 	Term* GetConstant() const { return mConstant; }
 
 private:
-	Term *mConstant;
+	Term *mConstant = nullptr; // Nullptr == 1
 };
 #endif // !BRACKET_H

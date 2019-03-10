@@ -13,6 +13,8 @@
 #include <sstream>
 #include <iomanip>
 
+#include <functional>
+
 using namespace std;
 
 #define DEF_C -999

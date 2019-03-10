@@ -8,6 +8,8 @@
 #include "maths/solver/Solver.h"
 #include "maths/Equations.h"
 
+#include "maths/solver/term_rewriter/QMReducer.h"
+
 //#define MAIN_APP
 #define APP_TEST
 
@@ -68,10 +70,13 @@ int main() {
 
 int main() {
 	lexertk::generator lexer;
-	lexer.process("_const+_const,_eval:no_diff_Var");
+	lexer.process("2(x + 2x) + 2x");
 
-	//auto result = tokenize(lexer);
+	auto result = tokenize(lexer);
 
+	QMReducer reducer;
+	reducer.setPool(result);
+	auto res = reducer.Sub(result[0], result[2]);
 
 	return 0;
 }

@@ -24,7 +24,7 @@
     <ClCompile Include="maths\solver\term_rewriter\QMRule.h">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="maths\solver\term_rewriter\QMRule.cpp">
+    <ClCompile Include="maths\solver\term_rewriter\QMReducer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

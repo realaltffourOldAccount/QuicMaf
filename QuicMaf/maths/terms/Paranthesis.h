@@ -19,8 +19,8 @@ class Paranthesis : Term {
 	bool isOpening() { return __isopening; }
 	int getType() { return __type; }
 
-	void setOpening(bool is) { __isopening == is; }
-	void setType(char type) { __type == type; }
+	void setOpening(bool is) { __isopening = is; }
+	void setType(char type) { __type = type; }
 
 private:
 	bool __isopening = true;
