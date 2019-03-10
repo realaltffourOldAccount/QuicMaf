@@ -1,3 +1,13 @@
+/*
+	****************************************************
+
+				This Code Is Depreciated
+					Remade and tuned in:
+						tokenizer.h
+
+	****************************************************
+*/
+
 #ifndef TERM_PARSER_H
 #define TERM_PARSER_H
 #pragma once

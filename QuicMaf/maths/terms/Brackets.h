@@ -13,7 +13,12 @@ public:
 	Bracket() {
 		Term();
 		mType = TermTypes::Brack;
-		mConstant = new Constant(1);
+	}
+
+	Bracket(vector<Term*> ts) {
+		Term();
+		mType = TermTypes::Brack;
+		mTerms = ts;
 	}
 
 	vector<Term*> mTerms;
@@ -21,6 +26,8 @@ public:
 	void setConstant(Term* constant) {
 		mConstant = constant;
 	}
+	
+	Term* GetConstant() const { return mConstant; }
 
 private:
 	Term *mConstant;

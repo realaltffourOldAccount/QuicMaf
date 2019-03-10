@@ -18,6 +18,15 @@
     <ClCompile Include="app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="maths\solver\Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="maths\solver\term_rewriter\QMRule.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="maths\solver\term_rewriter\QMRule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="maths\tokenizer.h">
@@ -51,6 +60,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="maths\terms\Paranthesis.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="maths\Equations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="maths\solver\Solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="maths\solver\term_rewriter\QMRuleSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="maths\solver\term_rewriter\QMReducer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

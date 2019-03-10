@@ -23,8 +23,9 @@ public:
 
 	NValue mValue = DEF_N;
 	CValue mVariable = DEF_C;
-	CValue mOperator = DEF_C;
 	NValue mPower = 1;
+	CValue mOperator = DEF_C;
+	bool mSquareRoot = false;
 	int mType = -1;
 };
 #endif // !TERM_H

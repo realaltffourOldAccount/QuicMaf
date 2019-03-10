@@ -119,9 +119,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="maths\solver\Solver.cpp" />
+    <ClCompile Include="maths\solver\term_rewriter\QMRule.cpp" />
+    <ClCompile Include="maths\solver\term_rewriter\QMRule.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="maths\defines.h" />
+    <ClInclude Include="maths\Equations.h" />
+    <ClInclude Include="maths\solver\term_rewriter\QMReducer.h" />
+    <ClInclude Include="maths\solver\term_rewriter\QMRuleSet.h" />
     <ClInclude Include="maths\terms\Brackets.h" />
     <ClInclude Include="maths\terms\Constant.h" />
     <ClInclude Include="maths\terms\Equal.h" />
@@ -131,6 +137,7 @@
     <ClInclude Include="maths\terms\term_parser.h" />
     <ClInclude Include="maths\terms\Variable.h" />
     <ClInclude Include="maths\tokenizer.h" />
+    <ClInclude Include="maths\solver\Solver.h" />
     <ClInclude Include="vendor\lexertk.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

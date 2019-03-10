@@ -7,7 +7,11 @@
 
 #include <string>
 #include <algorithm>
+#include <math.h>
 #include <iostream>
+
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -24,7 +28,6 @@ enum TermTypes {
 	Brack,
 	Equ,
 };
-
 
 // for string delimiter
 static vector<string> split(string s, string delimiter) {
@@ -51,7 +54,7 @@ static void removeSubstrs(string& s, string& p) {
 		s.erase(i, n);
 }
 
-int getPrecedence(char c) {
+static int getPrecedence(char c) {
 	//if (!isArithmitic(c)) return -1; // invalid
 
 	if (c == '*') return 1;
@@ -64,7 +67,7 @@ int getPrecedence(char c) {
 
 // return true if c1 is higher precedence
 // return false if c2 is higher precedence
-bool compPrecedence(char c1, char c2) {
+static bool compPrecedence(char c1, char c2) {
 	return getPrecedence(c1) > getPrecedence(c2);
 }
 
@@ -147,6 +150,25 @@ static int getTermType(string str) {
 
 	if (is_all_digits(str)) return Const;
 	else return Var;
+}
+
+// 1 is pos
+// -1 is neg
+// 0 is 0
+static int sign(NValue x) {
+	return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
+}
+
+
+// Function to calculate highest common divisor
+static int gcf(int x, int y) {
+	int gcd;
+
+	for (int i = 1; i <= x && i <= y; i++)
+		if (x % i == 0 && y % i == 0)
+			gcd = i;
+
+	return gcd;
 }
 
 #endif // !

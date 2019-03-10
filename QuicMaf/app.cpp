@@ -5,10 +5,11 @@
 
 #include "vendor/lexertk.hpp"
 
-#include "maths/tokenizer.h"
+#include "maths/solver/Solver.h"
+#include "maths/Equations.h"
 
-#define MAIN_APP
-//#define APP_TEST
+//#define MAIN_APP
+#define APP_TEST
 
 
 #ifdef MAIN_APP
@@ -44,13 +45,14 @@ int main() {
 			system("CLS");
 			return 1;
 		}
-		
+
 #ifdef DEBUG_MODE
 		lexertk::helper::dump(generator);
 #endif // DEBUG_MODE
 
+		Equation equation;
+		equation.Parse(generator);
 
-		auto result = tokenize(generator);
 
 		system("PAUSE");
 		system("CLS");
@@ -64,5 +66,14 @@ int main() {
 #ifdef APP_TEST
 
 
+int main() {
+	lexertk::generator lexer;
+	lexer.process("_const+_const,_eval:no_diff_Var");
+
+	//auto result = tokenize(lexer);
+
+
+	return 0;
+}
 
 #endif

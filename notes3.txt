@@ -1,0 +1,43 @@
+- Break brackets:
+	- Mutliply each child term with coefficeint, ignore operators.
+- Solve:
+	- Rules:
+		// These ruls are not complete in the application we should take in mind
+		// that 'const * var' might come as 'var * const' and still evaluate to the same thing
+		// Also it must always evaluate using the 'TermHelper' class.
+		- const * const, eval
+		- const * var, eval
+		- const * bracket, eval
+		- const / const, eval
+		- const / var, eval
+		- const / bracket, eval
+		- const + const, eval
+		- const + var, eval
+		- const + bracket, eval
+		- const - const, eval
+		- const - var, eval
+		- const - bracket, eval		
+	- Apply Rules, until no difference.
+
+- Move variables to the right:
+	- Specific Rules:
+		// These rules are not complete in the application we should take in mind 		
+		// that 'const * var' might come as 'var * const' THIS IS FOR ALL RULES!
+		// Also it should evaluate to something like this, although not always:
+		- const * const, const * const
+		- const * var, const * var
+		- const * bracket, const * bracket
+		- const / const, const / const
+		- const / var, const / var
+		- const / bracket, const / bracket
+		- const + const, cosnt + const
+		- const + var, const + var
+		- const + bracket, const + bracket
+		- const - const, const - const
+		- const - var, const - var
+		- const - bracket, const - bracket	
+	- Keep appling rules until there is no change.
+
+BreakBrackets()
+Move_Variables_To_The_Right()
+Solve()

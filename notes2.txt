@@ -1,0 +1,17 @@
+Term1 	Term2
+--------------
+Var	Var
+Var	Bracket
+Var	Const
+Var	Op
+Const	Const
+Const	Var
+Const	Bracket
+Const	Op
+Bracket	Bracket
+Bracket	Var
+Bracket	Const
+Bracket	Op
+Op	Var
+Op	Const
+Op	Bracket
