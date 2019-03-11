@@ -29,6 +29,7 @@ enum TermTypes {
 	Op,
 	Brack,
 	Equ,
+	Frac,
 };
 
 // for string delimiter

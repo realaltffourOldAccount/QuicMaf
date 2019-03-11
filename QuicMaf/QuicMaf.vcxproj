@@ -131,6 +131,7 @@
     <ClInclude Include="maths\terms\Brackets.h" />
     <ClInclude Include="maths\terms\Constant.h" />
     <ClInclude Include="maths\terms\Equal.h" />
+    <ClInclude Include="maths\terms\Fraction.h" />
     <ClInclude Include="maths\terms\Operator.h" />
     <ClInclude Include="maths\terms\Paranthesis.h" />
     <ClInclude Include="maths\terms\Term.h" />

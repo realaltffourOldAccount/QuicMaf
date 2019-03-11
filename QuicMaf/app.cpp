@@ -70,13 +70,15 @@ int main() {
 
 int main() {
 	lexertk::generator lexer;
-	lexer.process("2(x + 2x) + 2x");
+	lexer.process("2x/(4x+2)");
 
 	auto result = tokenize(lexer);
 
 	QMReducer reducer;
 	reducer.setPool(result);
-	auto res = reducer.Sub(result[0], result[2]);
+	auto frac = static_cast<Fraction*>(result[0]);
+
+	auto res = reducer.Div(frac->mNomin[0], frac->mDomin[0]);
 
 	return 0;
 }

@@ -74,5 +74,8 @@
     <ClInclude Include="maths\solver\term_rewriter\QMReducer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="maths\terms\Fraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

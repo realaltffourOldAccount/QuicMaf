@@ -11,6 +11,7 @@
 #include "../../terms/Term.h"
 #include "../../terms/Variable.h"
 #include "../../terms/Paranthesis.h"
+#include "../../terms/Fraction.h"
 #include "../../tokenizer.h"
 
 #include "../../../vendor/lexertk.hpp"
@@ -34,7 +35,7 @@ private: // General Utilites
 	vector<Term*> getRangeOfTerms(vector<Term*> terms, int begin, int end);
 
 	Bracket* convertToBracket(Term* t1);
-	Variable* converToVariable(Term* t1);
+	Variable* convertToVariable(Term* t1);
 	Constant* convertToConstant(Term* t1);
 
 	bool IsHigherSig(Term* t1, Term* t2);
@@ -49,15 +50,26 @@ private: // General Utilites
 private: // Power Evaluation
 	vector<Term*> ReducePower(Term* t1);
 
-public: // Addition Evaluation // TODO: PUBLIC AFTER TESTING
+public: // Addition Evaluation // TODO: PRIVATE AFTER TESTING
 	vector<Term*> Add(Term* t1, Term* t2, Identifier_t order = Identifier_t::_high_order_left);
 
-public: // Subtraction Evaluation // TODO: PUBLIC AFTER TESTING
+public: // Subtraction Evaluation // TODO: PRIVATE AFTER TESTING
 	vector<Term*> Sub(Term* t1, Term* t2, Identifier_t order = Identifier_t::_high_order_left);
 
-public: // Multiplication Evaluation // TODO: PUBLIC AFTER TESTING
+public: // Multiplication Evaluation // TODO: PRIVATE AFTER TESTING
 	vector<Term*> Mul(Term* t1, Term* t2, Identifier_t order = Identifier_t::_high_order_left);
 
+public:	// Division Evaluation // TODO: PRIVATE AFTER TESTING
+	bool IsDivSolvable(Term* t1, Term* t2);
+	bool IsDivSpecialCase(Term* t1, Term* t2);
+
+	vector<Term*> gcdofTerms(Term* t1, Term* t2);
+	vector<Term*> FactorizeTermsToBrack(vector<Term*> terms, vector<Term*> terms2);
+	vector<Term*> FactorizeTermsToBrack(vector<Term*> terms);
+
+	bool TermsMatch(vector<Term*> terms1, vector<Term*> terms2);
+
+	vector<Term*> Div(Term* t1, Term* t2, Identifier_t order = Identifier_t::_high_order_left);
 private:
 	QMRuleSet mRuleSet;
 
