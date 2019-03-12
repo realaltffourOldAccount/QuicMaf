@@ -70,7 +70,7 @@ int main() {
 
 int main() {
 	lexertk::generator lexer;
-	lexer.process("2x/(4x+2)");
+	lexer.process("4x/(2+2x)");
 
 	auto result = tokenize(lexer);
 

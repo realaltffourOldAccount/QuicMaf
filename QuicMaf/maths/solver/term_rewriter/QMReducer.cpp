@@ -49,9 +49,12 @@ vector<Term*> QMReducer::BreakBracket(Bracket * brack, bool order, Identifier_t 
 }
 
 vector<Term*> QMReducer::OrderTerms(vector<Term*> terms, Identifier_t order) {
-	stable_sort(terms.begin(), terms.end(), [this](Term* t1, Term* t2) {return IsHigherSig(t1, t2); });
+	if (order == Identifier_t::_high_order_left)
+		stable_sort(terms.begin(), terms.end(), [this](Term* t1, Term* t2) {return IsHigherSig(t1, t2); });
+	else stable_sort(terms.begin(), terms.end(), [this](Term* t1, Term* t2) {return IsHigherSig(t2, t1); });;
 	return terms;
 }
+
 vector<Term*> QMReducer::getRangeOfTerms(vector<Term*> terms, int begin, int end) {
 	vector<Term*> res;
 	for (int i = begin; i < end; i++) res.push_back(terms[i]);
@@ -398,7 +401,6 @@ bool QMReducer::IsDivSolvable(Term * t1, Term * t2) {
 
 	return false;
 }
-
 bool QMReducer::IsDivSpecialCase(Term * t1, Term * t2) {
 	if (t1->mType == TermTypes::Brack &&
 		t2->mType != TermTypes::Brack) return true;
@@ -409,12 +411,14 @@ bool QMReducer::IsDivSpecialCase(Term * t1, Term * t2) {
 	if (t1->mType == TermTypes::Brack &&
 		t2->mType == TermTypes::Brack) return true;
 
+	if (t1->mType == TermTypes::Var &&
+		t2->mType == TermTypes::Const) return true;
+
 	if (t1->mType == TermTypes::Const &&
 		t2->mType == TermTypes::Var) return true;
 
 	return false;
 }
-
 vector<Term*> QMReducer::gcdofTerms(Term * t1, Term * t2) {
 
 	if (t1->mType == TermTypes::Const && t2->mType == TermTypes::Const) {
@@ -455,11 +459,16 @@ vector<Term*> QMReducer::gcdofTerms(Term * t1, Term * t2) {
 
 	return {};
 }
-
 vector<Term*> QMReducer::FactorizeTermsToBrack(vector<Term*> terms, vector<Term*> terms2) {
-	vector<Term*> allTerms = terms;
+	vector<Term*> allTerms;
+
+	for (int i = 0; i < terms.size(); i++)
+		if (terms[i]->mType != TermTypes::Op)
+			allTerms.push_back(terms[i]);
+
 	for (int i = 0; i < terms2.size(); i++)
-		allTerms.push_back(terms2[i]);
+		if (terms2[i]->mType != TermTypes::Op)
+			allTerms.push_back(terms2[i]);
 
 	Term* HCF_all = new Term();
 	*HCF_all = *allTerms[0];
@@ -470,38 +479,48 @@ vector<Term*> QMReducer::FactorizeTermsToBrack(vector<Term*> terms, vector<Term*
 	Bracket* brack1 = new Bracket();
 	brack1->setConstant(HCF_all);
 	for (int i = 0; i < terms.size(); i++)
-		brack1->mTerms.push_back(Div(terms[i], HCF_all)[0]);
+		if (terms[i]->mType != TermTypes::Op)
+			brack1->mTerms.push_back(Div(terms[i], HCF_all)[0]);
+		else brack1->mTerms.push_back(terms[i]);
 
 	// make second bracket
 	Bracket* brack2 = new Bracket();
 	brack2->setConstant(HCF_all);
 	for (int i = 0; i < terms2.size(); i++)
-		brack2->mTerms.push_back(Div(terms[i], HCF_all)[0]);
+		if (terms2[i]->mType != TermTypes::Op)
+			brack2->mTerms.push_back(Div(terms2[i], HCF_all)[0]);
+		else brack2->mTerms.push_back(terms2[i]);
 
 	return { brack1, brack2 };
 }
-
 vector<Term*> QMReducer::FactorizeTermsToBrack(vector<Term*> allTerms) {
 	Term* HCF_all = new Term();
 	*HCF_all = *allTerms[0];
 	for (int i = 0; i < allTerms.size(); i++)
-		*HCF_all = *gcdofTerms(HCF_all, allTerms[i])[0];
+		if (allTerms[i]->mType != TermTypes::Op)
+			*HCF_all = *gcdofTerms(HCF_all, allTerms[i])[0];
 
 	// make bracket
 	Bracket* brack = new Bracket();
 	brack->setConstant(HCF_all);
 	for (int i = 0; i < allTerms.size(); i++)
-		brack->mTerms.push_back(Div(allTerms[i], HCF_all)[0]);
+		if (allTerms[i]->mType != TermTypes::Op)
+			brack->mTerms.push_back(Div(allTerms[i], HCF_all)[0]);
+		else brack->mTerms.push_back(allTerms[i]);
 
 	return { brack };
 }
-
 bool QMReducer::TermsMatch(vector<Term*> terms1, vector<Term*> terms2) {
 	terms1 = OrderTerms(terms1, Identifier_t::_high_order_left);
 	terms2 = OrderTerms(terms2, Identifier_t::_high_order_left);
-	return terms1 == terms2;
-}
 
+	if (terms1.size() != terms2.size()) return false;
+
+	for (int i = 0; i < terms1.size(); i++)
+		if (!IsEquTerms(terms1[i], terms2[i])) return false;
+
+	return true;
+}
 // WARNING: Make sure that t1 and t2 are in the simplest form.
 vector<Term*> QMReducer::Div(Term * t1, Term * t2, Identifier_t order) {
 
@@ -517,11 +536,11 @@ vector<Term*> QMReducer::Div(Term * t1, Term * t2, Identifier_t order) {
 			Term* res = new Term();
 			res->mValue = t1->mValue / t2->mValue;
 			res->mPower = t1->mPower - t2->mPower;
-			if (res->mPower == 0.0) 
+			if (res->mPower == 0.0)
 				// it is a constant
 				res->mType = TermTypes::Const;
 			else
-			res->mVariable = t1->mVariable;
+				res->mVariable = t1->mVariable;
 			return { res };
 		}
 		else if (t1->mType == TermTypes::Const && t2->mType == TermTypes::Const) {
@@ -535,10 +554,11 @@ vector<Term*> QMReducer::Div(Term * t1, Term * t2, Identifier_t order) {
 		}
 	}
 	// if it was a special case
-	else if (IsDivSpecialCase(t1, t2)) { 
-		// only three situations: 
+	else if (IsDivSpecialCase(t1, t2)) {
+		// only four situations: 
 		// mult term / mult term
 		// one term const / one term var
+		// one term var / one term const
 		// multi terms / one term
 		// one term / multi terms
 
@@ -547,7 +567,7 @@ vector<Term*> QMReducer::Div(Term * t1, Term * t2, Identifier_t order) {
 			auto t1_brack = convertToBracket(t1);
 			auto t2_brack = convertToBracket(t2);
 
-			// check if taking out common factors makes common bracket terms
+			// check if taking out highest common factors makes common bracket terms
 			auto fraction_nomin = convertToBracket(FactorizeTermsToBrack(t1_brack->mTerms)[0]);
 			auto fraction_domin = convertToBracket(FactorizeTermsToBrack(t2_brack->mTerms)[0]);
 
@@ -566,7 +586,7 @@ vector<Term*> QMReducer::Div(Term * t1, Term * t2, Identifier_t order) {
 			fraction_domin->setConstant(nullptr); // Nullptr == 1
 
 			Fraction* frac = new Fraction();
-			
+
 			frac->mNomin = fraction_nomin->mTerms;
 			frac->mDomin = fraction_domin->mTerms;
 			return { frac };
@@ -580,6 +600,18 @@ vector<Term*> QMReducer::Div(Term * t1, Term * t2, Identifier_t order) {
 			var->mVariable = t2_var->mVariable;
 			var->mValue = t1_const->mValue / t2_var->mValue;
 			var->mPower = t2_var->mPower;
+
+			return { var };
+		}
+		else if (t1->mType == TermTypes::Var && t2->mType == TermTypes::Const) {
+			// var / const
+			auto t1_var = convertToVariable(t1);
+			auto t2_const = convertToConstant(ReducePower(t2)[0]);
+
+			Variable* var = new Variable();
+			var->mValue = t1_var->mValue / t2_const->mValue;
+			var->mPower = t1_var->mPower;
+			var->mVariable = t1_var->mVariable;
 
 			return { var };
 		}
@@ -604,17 +636,13 @@ vector<Term*> QMReducer::Div(Term * t1, Term * t2, Identifier_t order) {
 			// one term / multi terms
 			auto t2_Brack = convertToBracket(t2);
 
-			vector<Term*> result;
-			for (int i = 0; i < t2_Brack->mTerms.size(); i++) {
-				if (t2_Brack->mTerms[i]->mType == TermTypes::Op) {
-					result.push_back(t2_Brack->mTerms[i]);
-				}
+			auto fraction = FactorizeTermsToBrack({ t1 }, t2_Brack->mTerms);
 
-				auto resultant = Div(t1, t2_Brack->mTerms[i]);
-				for (auto *term : resultant) result.push_back(term);
-			}
-
-			return result;
+			auto comfac = convertToBracket(fraction[0])->GetConstant();
+			Fraction* frac = new Fraction();
+			frac->mNomin = convertToBracket(fraction[0])->mTerms;
+			frac->mDomin = convertToBracket(fraction[1])->mTerms;
+			return { frac };
 		}
 	}
 
