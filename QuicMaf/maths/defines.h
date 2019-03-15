@@ -4,6 +4,8 @@
 #include <vector>
 #include <deque>
 #include <stack>
+#include <list>
+#include <map>
 
 #include <string>
 #include <algorithm>

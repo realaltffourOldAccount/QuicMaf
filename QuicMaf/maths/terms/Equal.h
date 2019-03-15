@@ -8,8 +8,12 @@ using namespace std;
 
 class Equal : public Term {
 public:
-	Equal() {
+	Equal() : Term() {
 		mType = TermTypes::Equ;
+	}
+
+	string to_str() override {
+		return "=";
 	}
 };
 

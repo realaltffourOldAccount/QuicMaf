@@ -24,7 +24,13 @@
     <ClCompile Include="maths\solver\term_rewriter\QMRule.h">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="maths\solver\term_rewriter\QMReducer.cpp">
+    <ClCompile Include="maths\solver\term_rewriter\QMReducerHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="maths\solver\term_rewriter\ds\TermPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="maths\solver\term_rewriter\ds\ExprTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,10 +77,16 @@
     <ClInclude Include="maths\solver\term_rewriter\QMRuleSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="maths\solver\term_rewriter\QMReducer.h">
+    <ClInclude Include="maths\solver\term_rewriter\QMReducerHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="maths\terms\Fraction.h">
+    <ClInclude Include="maths\solver\term_rewriter\QMEvaluator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="maths\solver\term_rewriter\ds\TermPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="maths\solver\term_rewriter\ds\ExprTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

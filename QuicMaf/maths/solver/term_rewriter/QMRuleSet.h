@@ -31,6 +31,8 @@ public:
 		stable_sort(mRuleSet.begin(), mRuleSet.end());
 	}
 
+	int size() { return mRuleSet.size(); }
+
 	auto GetRuleSet() { return mRuleSet; }
 
 	inline QMRule& operator[](int index) {

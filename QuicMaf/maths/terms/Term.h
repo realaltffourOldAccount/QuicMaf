@@ -7,19 +7,14 @@ using namespace std;
 
 class Term {
 public:
-	virtual NValue GetValue() { return mValue; }
-	virtual CValue GetVariable() { return mVariable; }
-	virtual CValue GetOperator() { return mOperator; }
-	virtual NValue GetPower() { return mPower; }
-
-	virtual int GetType() { return mType; };
-public:
 	Term(NValue val = DEF_N, CValue var = DEF_C, CValue oper = DEF_C, NValue pwr = 1) { 
 		mValue = val; 
 		mVariable = var;
 		mOperator = oper;
 		mPower = pwr;
 	}
+
+	virtual string to_str() { return "TERM_UNKNOWN"; };
 
 	NValue mValue = DEF_N;
 	CValue mVariable = DEF_C;

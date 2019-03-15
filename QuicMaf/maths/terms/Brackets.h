@@ -10,13 +10,11 @@ using namespace std;
 
 class Bracket : public Term {
 public:
-	Bracket() {
-		Term();
+	Bracket() : Term() {
 		mType = TermTypes::Brack;
 	}
 
-	Bracket(vector<Term*> ts) {
-		Term();
+	Bracket(vector<Term*> ts) : Term() {
 		mType = TermTypes::Brack;
 		mTerms = ts;
 	}
@@ -28,6 +26,17 @@ public:
 	}
 	
 	Term* GetConstant() const { return mConstant; }
+
+	string to_str() override {
+		string str;
+
+		if (mConstant != nullptr)
+			str.append(mConstant->to_str());
+
+		for (int i = 0; i < mTerms.size(); i++)
+			str.append(mTerms[i]->to_str());
+		return str;
+	}
 
 private:
 	Term *mConstant = nullptr; // Nullptr == 1

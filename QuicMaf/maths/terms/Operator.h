@@ -12,5 +12,12 @@ public:
 		mOperator = oper;
 		mType = TermTypes::Op; 
 	}
+
+	string to_str() override {
+		stringstream str;
+		str << mOperator;
+		return str.str();
+	}
+
 };
 #endif // !OPERATOR_

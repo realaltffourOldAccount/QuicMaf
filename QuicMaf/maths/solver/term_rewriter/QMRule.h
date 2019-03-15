@@ -17,6 +17,7 @@ enum Identifier_t {
 	_const = 1,
 	_var = 2,
 	_brack,
+	_frac,
 	_eval,
 	_add,
 	_sub,
@@ -40,10 +41,11 @@ enum Identifier_t {
 
 class QMRule {
 public:
-	QMRule(vector<int> rule, vector<int> props, int prio)
-		: mRules(rule), mProps(props), mPrior(prio) {}
+	QMRule(vector<int> rule, vector<int> result, vector<int> props, int prio)
+		: mRules(rule), mResult(result), mProps(props), mPrior(prio) {}
 
 	vector<int> GetRules() const { return mRules; }
+	vector<int> GetResult() const { return mResult; }
 	vector<int> GetProps() const { return mProps; }
 	int GetPrior() { return mPrior; }
 
@@ -62,6 +64,7 @@ public:
 	}
 private:
 	vector<int> mRules;
+	vector<int> mResult;
 	vector<int> mProps;
 	int mPrior;
 };

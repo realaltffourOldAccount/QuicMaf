@@ -119,19 +119,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="maths\solver\term_rewriter\ds\ExprTree.cpp" />
     <ClCompile Include="maths\solver\Solver.cpp" />
-    <ClCompile Include="maths\solver\term_rewriter\QMReducer.cpp" />
+    <ClCompile Include="maths\solver\term_rewriter\QMReducerHelper.cpp" />
     <ClCompile Include="maths\solver\term_rewriter\QMRule.h" />
+    <ClCompile Include="maths\solver\term_rewriter\ds\TermPool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="maths\solver\term_rewriter\ds\ExprTree.h" />
     <ClInclude Include="maths\defines.h" />
     <ClInclude Include="maths\Equations.h" />
-    <ClInclude Include="maths\solver\term_rewriter\QMReducer.h" />
+    <ClInclude Include="maths\solver\term_rewriter\QMReducerHelper.h" />
     <ClInclude Include="maths\solver\term_rewriter\QMRuleSet.h" />
     <ClInclude Include="maths\terms\Brackets.h" />
     <ClInclude Include="maths\terms\Constant.h" />
     <ClInclude Include="maths\terms\Equal.h" />
-    <ClInclude Include="maths\terms\Fraction.h" />
     <ClInclude Include="maths\terms\Operator.h" />
     <ClInclude Include="maths\terms\Paranthesis.h" />
     <ClInclude Include="maths\terms\Term.h" />
@@ -139,6 +141,8 @@
     <ClInclude Include="maths\terms\Variable.h" />
     <ClInclude Include="maths\tokenizer.h" />
     <ClInclude Include="maths\solver\Solver.h" />
+    <ClInclude Include="maths\solver\term_rewriter\QMEvaluator.h" />
+    <ClInclude Include="maths\solver\term_rewriter\ds\TermPool.h" />
     <ClInclude Include="vendor\lexertk.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

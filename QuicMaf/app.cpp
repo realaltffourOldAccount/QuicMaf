@@ -8,7 +8,10 @@
 #include "maths/solver/Solver.h"
 #include "maths/Equations.h"
 
-#include "maths/solver/term_rewriter/QMReducer.h"
+#include "maths/solver/term_rewriter/QMReducerHelper.h"
+#include "maths/solver/term_rewriter/QMEvaluator.h"
+
+#include "maths/solver/term_rewriter/ds/ExprTree.h"
 
 //#define MAIN_APP
 #define APP_TEST
@@ -67,18 +70,13 @@ int main() {
 
 #ifdef APP_TEST
 
-
 int main() {
 	lexertk::generator lexer;
-	lexer.process("4x/(2+2x)");
+	lexer.process("2/2*4^2");
 
 	auto result = tokenize(lexer);
 
-	QMReducer reducer;
-	reducer.setPool(result);
-	auto frac = static_cast<Fraction*>(result[0]);
-
-	auto res = reducer.Div(frac->mNomin[0], frac->mDomin[0]);
+	auto res = evaluate(result);
 
 	return 0;
 }

@@ -26,7 +26,6 @@
 #include "terms/Term.h"
 #include "terms/Variable.h"
 #include "terms/Paranthesis.h"
-#include "terms/Fraction.h"
 
 #include "../vendor/lexertk.hpp"
 
@@ -164,42 +163,42 @@ static vector<Term*> combineBrackets(vector<Term*> terms) {
 	return result;
 }
 
-static vector<Term*> combineOpWithTerms(vector<Term*> terms) {
-	vector<Term*> result;
-
-	for (int i = 0; i < terms.size(); i++) {
-		if (terms[i]->mType == TermTypes::Op) {
-			// operator detected
-			auto op = static_cast<Operator*>(terms[i]);
-			if (op->mOperator == '/') {
-				// division found
-
-				// check if it was the first
-				if (i == 0) {
-					// invalid
-					cout << "Can't divide with a Nill nominator!" << endl;
-					system("PAUSE");
-					exit(0);
-				}
-
-
-				Fraction* frac = new Fraction();
-				frac->mDomin.push_back(terms[i + 1]);
-				frac->mNomin.push_back(terms[i - 1]);
-				result.pop_back(); // pop the nominator, before push
-				result.push_back(frac);
-
-				// consume the dominator
-				i += 1;
-				continue;
-			}
-		}
-		result.push_back(terms[i]);
-		continue;
-	}
-
-	return result;
-}
+//static vector<Term*> combineOpWithTerms(vector<Term*> terms) {
+//	vector<Term*> result;
+//
+//	for (int i = 0; i < terms.size(); i++) {
+//		if (terms[i]->mType == TermTypes::Op) {
+//			// operator detected
+//			auto op = static_cast<Operator*>(terms[i]);
+//			if (op->mOperator == '/') {
+//				// division found
+//
+//				// check if it was the first
+//				if (i == 0) {
+//					// invalid
+//					cout << "Can't divide with a Nill nominator!" << endl;
+//					system("PAUSE");
+//					exit(0);
+//				}
+//
+//
+//				Fraction* frac = new Fraction();
+//				frac->mDomin.push_back(terms[i + 1]);
+//				frac->mNomin.push_back(terms[i - 1]);
+//				result.pop_back(); // pop the nominator, before push
+//				result.push_back(frac);
+//
+//				// consume the dominator
+//				i += 1;
+//				continue;
+//			}
+//		}
+//		result.push_back(terms[i]);
+//		continue;
+//	}
+//
+//	return result;
+//}
 
 static vector<Term*> tokenize(lexertk::generator lexed) {
 	vector<Term*> result;
@@ -361,7 +360,7 @@ static vector<Term*> tokenize(lexertk::generator lexed) {
 
 	// post-fix fixes
 	result = combineBrackets(result);
-	result = combineOpWithTerms(result);
+	//result = combineOpWithTerms(result);
 	return result;
 }
 #endif // !TOKENIZER_H
