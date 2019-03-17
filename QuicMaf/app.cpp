@@ -8,19 +8,18 @@
 #include "maths/solver/Solver.h"
 #include "maths/Equations.h"
 
-#include "maths/solver/term_rewriter/QMReducerHelper.h"
+#include "maths/solver/term_rewriter/QMEvalHelper.h"
 #include "maths/solver/term_rewriter/QMEvaluator.h"
 
 #include "maths/solver/term_rewriter/ds/ExprTree.h"
 
-//#define MAIN_APP
-#define APP_TEST
+#define MAIN_APP
+//#define APP_TEST
 
 
 #ifdef MAIN_APP
 
 using namespace std;
-
 
 int main() {
 
@@ -29,35 +28,19 @@ int main() {
 		string input;
 		cin >> input;
 
-		lexertk::generator generator;
+		cout << "Solution: " << endl;
 
-		if (!generator.process(input)) {
-			cout << "Failed to lex: " << input << endl;
-			system("PAUSE");
-			system("CLS");
-			return true;
-		}
+		Solver solver;
+		solver.Parse(input);
+		solver.Solve();
 
-		//lexertk::helper::commutative_inserter ci;
-		//ci.process(generator);
+		for (auto *lwing : solver.mEquation->lwing)
+			cout << lwing->to_str();
+		cout << "=";
+		for (auto *rwing : solver.mEquation->rwing)
+			cout << rwing->to_str();
 
-		lexertk::helper::bracket_checker bc;
-		bc.process(generator);
-
-		if (!bc.result()) {
-			cout << "Failed Bracket Check!" << endl;
-			system("PAUSE");
-			system("CLS");
-			return 1;
-		}
-
-#ifdef DEBUG_MODE
-		lexertk::helper::dump(generator);
-#endif // DEBUG_MODE
-
-		Equation equation;
-		equation.Parse(generator);
-
+		cout << endl;
 
 		system("PAUSE");
 		system("CLS");
@@ -72,12 +55,23 @@ int main() {
 
 int main() {
 	lexertk::generator lexer;
-	lexer.process("2/2*4^2");
+	lexer.process("12341-(2x+3)");
 
 	auto result = tokenize(lexer);
 
-	auto res = evaluate(result);
+	Solver solver;
+	solver.Parse("4+3=4x+6");
+	solver.Solve();
 
+	for (auto *lwing : solver.mEquation->lwing)
+		cout << lwing->to_str();
+	cout << "=";
+	for (auto *rwing : solver.mEquation->rwing)
+		cout << rwing->to_str();
+
+	cout << endl;
+
+	system("PAUSE");
 	return 0;
 }
 

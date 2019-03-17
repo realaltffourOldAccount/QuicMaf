@@ -31,7 +31,7 @@ struct Equation {
 				continue; // dont add equal sign
 			}
 			else left = left;
-			(left) ? lwing_str.push_back(expression[i].value[0]) : rwing_str.push_back(expression[i].value[0]); // append to wings
+			(left) ? lwing_str.append(expression[i].value) : rwing_str.append(expression[i].value); // append to wings
 		}
 
 		// Tokenize wings

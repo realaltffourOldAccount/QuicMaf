@@ -13,7 +13,7 @@
 #include "../../../tokenizer.h"
 
 #include "../../../../vendor/lexertk.hpp"
-#include "../QMReducerHelper.h"
+#include "../QMEvalHelper.h"
 #include "TermPool.h"
 
 struct TreeNode {

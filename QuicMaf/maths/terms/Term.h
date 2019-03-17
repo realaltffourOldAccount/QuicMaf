@@ -14,7 +14,9 @@ public:
 		mPower = pwr;
 	}
 
-	virtual string to_str() { return "TERM_UNKNOWN"; };
+	virtual string to_str() {
+		return "TERM_UNKNOWN"; 
+	};
 
 	NValue mValue = DEF_N;
 	CValue mVariable = DEF_C;

@@ -83,7 +83,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
@@ -121,7 +121,7 @@
     <ClCompile Include="app.cpp" />
     <ClCompile Include="maths\solver\term_rewriter\ds\ExprTree.cpp" />
     <ClCompile Include="maths\solver\Solver.cpp" />
-    <ClCompile Include="maths\solver\term_rewriter\QMReducerHelper.cpp" />
+    <ClCompile Include="maths\solver\term_rewriter\QMEvalHelper.cpp" />
     <ClCompile Include="maths\solver\term_rewriter\QMRule.h" />
     <ClCompile Include="maths\solver\term_rewriter\ds\TermPool.cpp" />
   </ItemGroup>
@@ -129,9 +129,10 @@
     <ClInclude Include="maths\solver\term_rewriter\ds\ExprTree.h" />
     <ClInclude Include="maths\defines.h" />
     <ClInclude Include="maths\Equations.h" />
-    <ClInclude Include="maths\solver\term_rewriter\QMReducerHelper.h" />
+    <ClInclude Include="maths\solver\term_rewriter\QMEvalHelper.h" />
     <ClInclude Include="maths\solver\term_rewriter\QMRuleSet.h" />
     <ClInclude Include="maths\terms\Brackets.h" />
+    <ClInclude Include="maths\terms\Bundle.h" />
     <ClInclude Include="maths\terms\Constant.h" />
     <ClInclude Include="maths\terms\Equal.h" />
     <ClInclude Include="maths\terms\Operator.h" />

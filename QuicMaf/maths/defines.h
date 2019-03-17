@@ -31,7 +31,7 @@ enum TermTypes {
 	Op,
 	Brack,
 	Equ,
-	Frac,
+	Bund,
 };
 
 // for string delimiter
@@ -174,6 +174,14 @@ static int gcf(int x, int y) {
 			gcd = i;
 
 	return gcd;
+}
+
+template<class T>
+static bool IsInVector(vector<T> v, T elem) {
+	for (auto *item : v)
+		if (item == elem) 
+			return true;
+	return false;
 }
 
 #endif // !

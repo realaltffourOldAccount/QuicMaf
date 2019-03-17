@@ -1,4 +1,4 @@
-#include "QMReducerHelper.h"
+#include "QMEvalHelper.h"
 
 vector<IdsWithTerms> QMEvalHelper::convertRangeToIds(vector<Term*> range) {
 	vector<IdsWithTerms> result;
@@ -44,13 +44,13 @@ bool QMEvalHelper::IsSolvable(Term * t1, Operator * op, Term * t2) {
 vector<Term*> QMEvalHelper::BreakBracket(Bracket * brack, bool order, Identifier_t order_type) {
 	vector<Term*> res;
 
-	if (brack->GetConstant() == nullptr) {
+	if (brack->mConstant == nullptr) {
 		for (int i = 0; i < brack->mTerms.size(); i++)
 			res.push_back(brack->mTerms[i]);
 	}
 
 	for (int i = 0; i < brack->mTerms.size(); i++) {
-		auto returns = Mul(brack->GetConstant(), brack->mTerms[i]);
+		auto returns = Mul(brack->mConstant, brack->mTerms[i]);
 		for (int j = 0; j < returns.size(); j++)
 			res.push_back(returns[j]);
 	}
@@ -91,12 +91,13 @@ Constant * QMEvalHelper::convertToConstant(Term * t1) {
 bool QMEvalHelper::IsHigherSig(Term * t1, Term * t2) { // x^2 > x :  true
 	if (t1->mType == TermTypes::Brack)
 		return true;
-	else if (t1->mType == TermTypes::Op)
+	if (t1->mType == TermTypes::Op)
 		return false;
-	else if (t2->mType == TermTypes::Op)
+	if (t2->mType == TermTypes::Op)
 		return true;
 	if (t1->mType == TermTypes::Var) {
 		// its a var check for other term
+		if (t2->mType == TermTypes::Bund) return false;
 		if (t2->mType == TermTypes::Brack) return false;
 
 		if (t2->mType == TermTypes::Var) {
@@ -106,22 +107,29 @@ bool QMEvalHelper::IsHigherSig(Term * t1, Term * t2) { // x^2 > x :  true
 				return t1->mValue >= t2->mValue;
 			}
 			// if t1 has higher or equal power 
-			if (t1->mPower >= t2->mPower) return true;
+			if (t1->mPower >= t2->mPower) 
+				return true;
 			else return false; // t2 is higher
 		}
 
 		return true;
 	}
-	else if (t1->mType == TermTypes::Const) {
+	if (t1->mType == TermTypes::Const) {
 		// its a const check for other term
 		if (t2->mType == TermTypes::Brack) return false;
 		if (t2->mType == TermTypes::Var) return false;
 		if (t2->mType == TermTypes::Const) {
 			// if same type
 			// check for power
-			return t1->mPower >= t2->mPower;
+			if (t1->mValue > t2->mValue) return true;
+			return false;
 		}
+		return true;
 	}
+	if (t1->mType == TermTypes::Bund)
+		return true;
+	if (t2->mType == TermTypes::Bund)
+		return false;
 
 	return false;
 }
@@ -485,7 +493,7 @@ vector<Term*> QMEvalHelper::FactorizeTermsToBrack(vector<Term*> terms, vector<Te
 
 	// make first bracket
 	Bracket* brack1 = new Bracket();
-	brack1->setConstant(HCF_all);
+	brack1->mConstant = HCF_all;
 	for (int i = 0; i < terms.size(); i++)
 		if (terms[i]->mType != TermTypes::Op)
 			brack1->mTerms.push_back(Div(terms[i], HCF_all)[0]);
@@ -493,7 +501,7 @@ vector<Term*> QMEvalHelper::FactorizeTermsToBrack(vector<Term*> terms, vector<Te
 
 	// make second bracket
 	Bracket* brack2 = new Bracket();
-	brack2->setConstant(HCF_all);
+	brack2->mConstant = HCF_all;
 	for (int i = 0; i < terms2.size(); i++)
 		if (terms2[i]->mType != TermTypes::Op)
 			brack2->mTerms.push_back(Div(terms2[i], HCF_all)[0]);
@@ -510,7 +518,7 @@ vector<Term*> QMEvalHelper::FactorizeTermsToBrack(vector<Term*> allTerms) {
 
 	// make bracket
 	Bracket* brack = new Bracket();
-	brack->setConstant(HCF_all);
+	brack->mConstant = HCF_all;
 	for (int i = 0; i < allTerms.size(); i++)
 		if (allTerms[i]->mType != TermTypes::Op)
 			brack->mTerms.push_back(Div(allTerms[i], HCF_all)[0]);
@@ -582,16 +590,16 @@ vector<Term*> QMEvalHelper::Div(Term * t1, Term * t2, Identifier_t order) {
 			if (TermsMatch(fraction_nomin->mTerms, fraction_domin->mTerms))
 				// common bracket terms matched
 				// TIME FOR RECURSION!
-				return Div(fraction_nomin->GetConstant(), fraction_domin->GetConstant());
+				return Div(fraction_nomin->mConstant, fraction_domin->mConstant);
 
 			// check if taking out common factors make common bracket coeffiecient
 			auto fraction = FactorizeTermsToBrack(t1_brack->mTerms, t2_brack->mTerms);
 			// fraction[0] is nomin
 			// fraction[1] is domin
 			fraction_nomin = convertToBracket(fraction[0]);
-			fraction_nomin->setConstant(nullptr); // Nullptr == 1
+			fraction_nomin->mConstant = nullptr; // Nullptr == 1
 			fraction_domin = convertToBracket(fraction[1]);
-			fraction_domin->setConstant(nullptr); // Nullptr == 1
+			fraction_domin->mConstant = nullptr; // Nullptr == 1
 
 			vector<Term*> res;
 			for (int i = 0; i < fraction_nomin->mTerms.size(); i++)
@@ -649,7 +657,7 @@ vector<Term*> QMEvalHelper::Div(Term * t1, Term * t2, Identifier_t order) {
 
 			auto fraction = FactorizeTermsToBrack({ t1 }, t2_Brack->mTerms);
 
-			auto comfac = convertToBracket(fraction[0])->GetConstant();
+			auto comfac = convertToBracket(fraction[0])->mConstant;
 
 			vector<Term*> res;
 			for (auto *term : convertToBracket(fraction[0])->mTerms)

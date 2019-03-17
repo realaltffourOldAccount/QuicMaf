@@ -19,7 +19,7 @@
 #include "ds/ExprTree.h"
 #include "ds/TermPool.h"
 
-TermPool mPool;
+static TermPool mPool;
 static vector<Term*> solveNode(TreeNode * node) {
 	if (node->_term->mType != TermTypes::Op) return { node->_term };
 

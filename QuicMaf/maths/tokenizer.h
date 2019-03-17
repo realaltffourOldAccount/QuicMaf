@@ -114,7 +114,7 @@ static Bracket* tokenize_bracket(lexertk::generator gen, Token* token, string co
 	if (coefficient != "") {
 		lexertk::generator lex;
 		lex.process(coefficient);
-		result->setConstant(tokenize(lex)[0]);
+		result->mConstant = tokenize(lex)[0];
 	}
 	return result;
 }
@@ -136,9 +136,9 @@ static vector<Term*> combineBrackets(vector<Term*> terms) {
 						// if so combine the terms
 						Bracket* brack = new Bracket();
 						brack->mTerms = static_cast<Bracket*>(terms[i + 2])->mTerms;
-						auto constant = static_cast<Bracket*>(terms[i + 2])->GetConstant();
+						auto constant = static_cast<Bracket*>(terms[i + 2])->mConstant;
 						constant->mValue *= (term->mOperator == '+') ? +1 : -1;
-						brack->setConstant(constant);
+						brack->mConstant = constant;
 						result.push_back(brack);
 						i += 2;
 						continue;
@@ -149,9 +149,17 @@ static vector<Term*> combineBrackets(vector<Term*> terms) {
 					// if so combine the terms
 					Bracket* brack = new Bracket();
 					brack->mTerms = static_cast<Bracket*>(terms[i + 1])->mTerms;
-					auto constant = static_cast<Bracket*>(terms[i + 1])->GetConstant();
-					constant->mValue *= (term->mOperator == '+') ? +1 : -1;
-					brack->setConstant(constant);
+					auto constant = static_cast<Bracket*>(terms[i + 1])->mConstant;
+					if (constant == nullptr) { // 1
+						Constant* Const = new Constant();
+						if (term->mOperator == '+')
+							Const->mValue = 1;
+						else Const->mValue = -1;
+					}
+					else {
+						constant->mValue *= (term->mOperator == '+') ? +1 : -1;
+						brack->mConstant = constant;
+					}
 					result.push_back(brack);
 					i += 1;
 					continue;

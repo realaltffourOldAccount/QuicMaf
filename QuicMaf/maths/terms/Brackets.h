@@ -20,12 +20,8 @@ public:
 	}
 
 	vector<Term*> mTerms;
+	Term *mConstant = nullptr; // Nullptr == 1
 
-	void setConstant(Term* constant) {
-		mConstant = constant;
-	}
-	
-	Term* GetConstant() const { return mConstant; }
 
 	string to_str() override {
 		string str;
@@ -33,12 +29,13 @@ public:
 		if (mConstant != nullptr)
 			str.append(mConstant->to_str());
 
+		str.append("(");
+
 		for (int i = 0; i < mTerms.size(); i++)
 			str.append(mTerms[i]->to_str());
+
+		str.append(")");
 		return str;
 	}
-
-private:
-	Term *mConstant = nullptr; // Nullptr == 1
 };
 #endif // !BRACKET_H

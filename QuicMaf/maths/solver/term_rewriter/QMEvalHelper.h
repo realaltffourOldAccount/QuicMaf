@@ -1,5 +1,5 @@
-#ifndef QMREDUCER_H
-#define QMREDUCER_H
+#ifndef QMEVAL_HELPER_H
+#define QMEVAL_HELPER_H
 #pragma once
 // WARINING: Only one variable is allowed or errors will happen!
 
