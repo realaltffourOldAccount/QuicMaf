@@ -1,0 +1,3 @@
+[submodule "QuicMaf/vendor/spdlog"]
+	path = QuicMaf/vendor/spdlog
+	url = https://github.com/gabime/spdlog
