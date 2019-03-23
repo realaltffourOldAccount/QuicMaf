@@ -91,9 +91,52 @@ static vector<Term*> getPool() {
 	return res;
 }
 
+static vector<Term*> evaluateRight(vector<Term*> terms) {
+	TermPool mPool;
+	mPool.set(terms);
+
+	// Step 1:
+	// Reduce Powers except for variables
+	for (int i = 0; i < mPool.size(); i++)
+		if (mPool[i]->mType == TermTypes::Const)
+			*mPool[i] = *QMEvalHelper::ReducePower(mPool[i])[0];
+
+	// Step 2:
+	// Remove begining sign, if any
+	if (mPool[0]->mType == TermTypes::Op) {
+		auto op = mPool.pop_back(); // remove op
+		auto res = *mPool.begin();
+		res->mValue = res->mValue * (op->mOperator == '+') ? 1 : -1; // multiply
+
+		mPool.pop_front(); // remove term going to be modified
+		mPool.push_front(res);
+	}
+
+	// Step 3:
+	// Generate ExpressionTree
+	ExprTreeReversed tree;
+	tree.setPool(mPool.vec());
+	tree.GenerateTree();
+
+	// Step 4: Evaluate!!!
+	mPool.set(solveNode(tree.getHead()));
+	vector<Term*> res;
+	for (int i = 0; i < mPool.size(); i++)
+		res.push_back(mPool[i]);
+	return res;
+}
+
 static vector<Term*> evaluate(vector<Term*> term) {
+	if (term.empty()) return term;
 	mPool.set(term);
 	evaluate();
+
+	auto second_pool = evaluateRight(term);
+	
+	if (second_pool.size() < mPool.size()) {
+		mPool.set(second_pool);
+	}
+
 	return getPool();
 }
 

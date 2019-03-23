@@ -92,5 +92,11 @@
     <ClInclude Include="maths\solver\term_rewriter\QMEvalHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="qm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

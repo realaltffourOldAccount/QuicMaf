@@ -13,9 +13,10 @@
 
 #include "maths/solver/term_rewriter/ds/ExprTree.h"
 
-#define MAIN_APP
-//#define APP_TEST
+#include "Log.h"
 
+//#define MAIN_APP
+//#define APP_TEST
 
 #ifdef MAIN_APP
 
@@ -31,6 +32,7 @@ int main() {
 		cout << "Solution: " << endl;
 
 		Solver solver;
+		solver.CheckEqu(input);
 		solver.Parse(input);
 		solver.Solve();
 
@@ -54,24 +56,6 @@ int main() {
 #ifdef APP_TEST
 
 int main() {
-	lexertk::generator lexer;
-	lexer.process("12341-(2x+3)");
-
-	auto result = tokenize(lexer);
-
-	Solver solver;
-	solver.Parse("4+3=4x+6");
-	solver.Solve();
-
-	for (auto *lwing : solver.mEquation->lwing)
-		cout << lwing->to_str();
-	cout << "=";
-	for (auto *rwing : solver.mEquation->rwing)
-		cout << rwing->to_str();
-
-	cout << endl;
-
-	system("PAUSE");
 	return 0;
 }
 

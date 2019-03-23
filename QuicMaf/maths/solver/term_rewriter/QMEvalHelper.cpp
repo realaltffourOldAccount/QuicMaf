@@ -48,12 +48,16 @@ vector<Term*> QMEvalHelper::BreakBracket(Bracket * brack, bool order, Identifier
 		for (int i = 0; i < brack->mTerms.size(); i++)
 			res.push_back(brack->mTerms[i]);
 	}
-
-	for (int i = 0; i < brack->mTerms.size(); i++) {
-		auto returns = Mul(brack->mConstant, brack->mTerms[i]);
-		for (int j = 0; j < returns.size(); j++)
-			res.push_back(returns[j]);
-	}
+	else
+		for (int i = 0; i < brack->mTerms.size(); i++) {
+			if (brack->mTerms[i]->mType != TermTypes::Op) {
+				auto returns = Mul(brack->mConstant, brack->mTerms[i]);
+				for (int j = 0; j < returns.size(); j++)
+					res.push_back(returns[j]);
+			}
+			else
+				res.push_back(brack->mTerms[i]);			
+		}
 	return res;
 }
 
@@ -107,7 +111,7 @@ bool QMEvalHelper::IsHigherSig(Term * t1, Term * t2) { // x^2 > x :  true
 				return t1->mValue >= t2->mValue;
 			}
 			// if t1 has higher or equal power 
-			if (t1->mPower >= t2->mPower) 
+			if (t1->mPower >= t2->mPower)
 				return true;
 			else return false; // t2 is higher
 		}
@@ -174,7 +178,7 @@ vector<Term*> QMEvalHelper::Add(Term * t1, Term * t2, Identifier_t order) {
 	// check if one of the terms were brackets
 	if (IsBracket(t1) || IsBracket(t2)) {
 		// check which term is bracket
-		if (IsBracket(t1) && !IsBracket(t2)) {
+		if (IsBracket(t1) && IsBracket(t2)) {
 			auto brokenbrack = BreakBracket(convertToBracket(t1));
 			auto brokenbrack2 = BreakBracket(convertToBracket(t2));
 			for (int i = 0; i < brokenbrack2.size(); i++)
@@ -242,7 +246,6 @@ vector<Term*> QMEvalHelper::Add(Term * t1, Term * t2, Identifier_t order) {
 
 vector<Term*> QMEvalHelper::Sub(Term * t1, Term * t2, Identifier_t order) {
 	vector<Term*> res;
-
 
 	// check if one of the terms were brackets
 	if (IsBracket(t1) || IsBracket(t2)) {
@@ -325,7 +328,7 @@ vector<Term*> QMEvalHelper::Mul(Term * t1, Term * t2, Identifier_t order) {
 		// brack, var
 		// brack, const
 
-		if (IsBracket(t1) || IsBracket(t2)) {
+		if (IsBracket(t1) && IsBracket(t2)) {
 			auto t1_brokenbrack = BreakBracket(convertToBracket(t1), true, order);
 			auto t2_brokenbrack = BreakBracket(convertToBracket(t2), true, order);
 
@@ -539,8 +542,6 @@ bool QMEvalHelper::TermsMatch(vector<Term*> terms1, vector<Term*> terms2) {
 }
 // WARNING: Make sure that t1 and t2 are in the simplest form.
 vector<Term*> QMEvalHelper::Div(Term * t1, Term * t2, Identifier_t order) {
-
-
 	// Check if division is solvable
 	if (IsDivSolvable(t1, t2)) {
 		// only two situations
@@ -615,12 +616,7 @@ vector<Term*> QMEvalHelper::Div(Term * t1, Term * t2, Identifier_t order) {
 			auto t1_const = convertToConstant(ReducePower(t1)[0]);
 			auto t2_var = convertToVariable(t2);
 
-			Variable* var = new Variable();
-			var->mVariable = t2_var->mVariable;
-			var->mValue = t1_const->mValue / t2_var->mValue;
-			var->mPower = t2_var->mPower;
-
-			return { var };
+			return { t1_const, new Operator('/'), t2_var };
 		}
 		else if (t1->mType == TermTypes::Var && t2->mType == TermTypes::Const) {
 			// var / const

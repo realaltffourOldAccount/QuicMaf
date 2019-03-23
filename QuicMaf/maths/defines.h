@@ -1,5 +1,6 @@
 #ifndef DEFINES_H
 #define DEFINES_H
+#include "../Log.h"
 
 #include <vector>
 #include <deque>
@@ -16,6 +17,7 @@
 #include <iomanip>
 
 #include <functional>
+
 
 using namespace std;
 

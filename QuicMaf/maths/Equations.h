@@ -17,8 +17,12 @@ struct Equation {
 	vector<Term*> lwing;
 	vector<Term*> rwing;
 
+	LOG* log = nullptr;
+
 	// TODO: Optimize this mess
 	void Parse(lexertk::generator expression) {
+		tok_log = log;
+
 		string lwing_str;
 		string rwing_str;
 
@@ -38,10 +42,18 @@ struct Equation {
 		lexertk::generator lwing_lexer;
 		lwing_lexer.process(lwing_str);
 		lwing = tokenize(lwing_lexer);
+		if (lwing.empty()) {
+			return; // error occured
+		}
 
 		lexertk::generator rwing_lexer;
 		rwing_lexer.process(rwing_str);
 		rwing = tokenize(rwing_lexer);
+		if (lwing.empty()) {
+			return; // error occured
+		}
+
+		tok_log = nullptr;
 	}
 };
 

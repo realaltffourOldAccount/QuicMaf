@@ -67,6 +67,8 @@ static lexertk::generator retriveSubLexer(lexertk::generator gen, Token tok) {
 //	Paranthesis(bool is, int _pos) : isOpening(is), pos(_pos) {}
 //};
 
+static LOG* tok_log = nullptr;
+
 vector<Term*> tokenize(lexertk::generator lexed);
 
 static Bracket* tokenize_bracket(lexertk::generator gen, Token* token, string coefficient) {
@@ -78,19 +80,21 @@ static Bracket* tokenize_bracket(lexertk::generator gen, Token* token, string co
 
 	// DETERMINE THE ENDING OF THE BRACKETS
 	int counter = 0;
-	bool state = false;
 	int index = token->begin;
 	do {
 		if (isBracketsOpening(gen[index].value[0])) {
 			counter++;
-			state = true;
 		}
 		else if (isBracketsClosing(gen[index].value[0])) {
 			counter--;
-			state = false;
 		}
 		index++;
-	} while (!(!state && counter == 0));
+		if (index > gen.size()) {
+			// end of string
+			tok_log->operator<<("Unbalanced Paranthesis!");
+			return nullptr;
+		}
+	} while (counter != 0);
 
 	bracks = retriveSubLexer(gen, Token(token->begin, index - 1));
 	token->end = index - 1; // to make sure we move the token pointer to the end of bracks
@@ -101,12 +105,15 @@ static Bracket* tokenize_bracket(lexertk::generator gen, Token* token, string co
 	// Tokenize its term
 	// first make sure it is not empty
 	if (bracks.empty()) {
-		cout << "Brackets can't be empty!" << endl;
-		system("PAUSE");
-		exit(0);
+		tok_log->operator<<("Bracket can't be empty!");
+		return nullptr;
 	}
 	// tokenize terms
 	auto terms = tokenize(bracks);
+	if (terms.empty()) {
+		tok_log->operator<<("Failed to tokenize bracket's coefficient!");
+		return nullptr;
+	}
 
 	result->mTerms = terms;
 
@@ -127,44 +134,50 @@ static vector<Term*> combineBrackets(vector<Term*> terms) {
 
 		if (term->mType == TermTypes::Op &&
 			(term->mOperator == '-' || term->mOperator == '+')) {
-			// if after it was a number
-			if (terms[i + 1]->mType == TermTypes::Const || terms[i + 1]->mType == TermTypes::Var) {
-				// check for safety
-				if (!(terms.size() <= i + 2))
-					// if after it was a bracket too
-					if (terms[i + 2]->mType == TermTypes::Brack) {
+			if (i + 1 >= terms.size()) {
+				// cant check after it
+				result.push_back(terms[i]);
+				continue;
+			}
+			else
+				// if after it was a number
+				if (terms[i + 1]->mType == TermTypes::Const || terms[i + 1]->mType == TermTypes::Var) {
+					// check for safety
+					if (!(terms.size() <= i + 2))
+						// if after it was a bracket too
+						if (terms[i + 2]->mType == TermTypes::Brack) {
+							// if so combine the terms
+							Bracket* brack = new Bracket();
+							brack->mTerms = static_cast<Bracket*>(terms[i + 2])->mTerms;
+							auto constant = static_cast<Bracket*>(terms[i + 2])->mConstant;
+							constant->mValue *= (term->mOperator == '+') ? +1 : -1;
+							brack->mConstant = constant;
+							result.push_back(brack);
+							i += 2;
+							continue;
+						}
+				}
+				else {
+					if (terms[i + 1]->mType == TermTypes::Brack) {
 						// if so combine the terms
 						Bracket* brack = new Bracket();
-						brack->mTerms = static_cast<Bracket*>(terms[i + 2])->mTerms;
-						auto constant = static_cast<Bracket*>(terms[i + 2])->mConstant;
-						constant->mValue *= (term->mOperator == '+') ? +1 : -1;
-						brack->mConstant = constant;
+						brack->mTerms = static_cast<Bracket*>(terms[i + 1])->mTerms;
+						auto constant = static_cast<Bracket*>(terms[i + 1])->mConstant;
+						if (constant == nullptr) { // 1
+							Constant* Const = new Constant();
+							if (term->mOperator == '+')
+								Const->mValue = 1;
+							else Const->mValue = -1;
+						}
+						else {
+							constant->mValue *= (term->mOperator == '+') ? +1 : -1;
+							brack->mConstant = constant;
+						}
 						result.push_back(brack);
-						i += 2;
+						i += 1;
 						continue;
 					}
-			}
-			else {
-				if (terms[i + 1]->mType == TermTypes::Brack) {
-					// if so combine the terms
-					Bracket* brack = new Bracket();
-					brack->mTerms = static_cast<Bracket*>(terms[i + 1])->mTerms;
-					auto constant = static_cast<Bracket*>(terms[i + 1])->mConstant;
-					if (constant == nullptr) { // 1
-						Constant* Const = new Constant();
-						if (term->mOperator == '+')
-							Const->mValue = 1;
-						else Const->mValue = -1;
-					}
-					else {
-						constant->mValue *= (term->mOperator == '+') ? +1 : -1;
-						brack->mConstant = constant;
-					}
-					result.push_back(brack);
-					i += 1;
-					continue;
 				}
-			}
 		}
 		result.push_back(term);
 	}
@@ -217,6 +230,16 @@ static vector<Term*> tokenize(lexertk::generator lexed) {
 		Token tok;
 		tok.begin = i;
 
+		if (lex.value == "^") {
+			// invalid
+			tok_log->operator<<("There can't be a stranded power sign!");
+			return {};
+		}
+		if (lex.value == ")") {
+			// invalid
+			tok_log->operator<<("There can't be an ending without a begining!");
+			return {};
+		}
 		if (is_all_digits(lex.value)) {
 			// number
 
@@ -230,17 +253,27 @@ static vector<Term*> tokenize(lexertk::generator lexed) {
 					// powers ONLY can be numbers no evaluation is done in the power
 					// ex: 5^2*3 // the expression will be 5 by 5 then multiply 3
 					if (!is_all_digits(lexed[i + 3].value)) {
-						cout << "ONLY numbers are allowed in powers!" << endl;
-						system("PAUSE");
-						exit(0);
+						tok_log->operator<<("ONLY numbers are allowed in powers!");
+						return {};
 						/////// ENDING OF TREE
 					}
 
 					// check for bracket
 					if (lexed[i + 4].value == "(") {
+						// check for brackets at the end
+						if (i + 5 >= lexed.size()) {
+							// invalid, having opening bracks at the end
+							tok_log->operator<<("There can't be opening bracks at the end!");
+							return {};
+						}
+
 						// bracket detected
 						tok.begin += 4; // consume coefficient
-						result.push_back(tokenize_bracket(lexed, &tok, lex.value + after_lex.value + lexed[i + 2].value + lexed[i + 3].value));
+						auto brack = tokenize_bracket(lexed, &tok, lex.value + after_lex.value + lexed[i + 2].value + lexed[i + 3].value);
+						if (brack == nullptr) {
+							return {};
+						}
+						result.push_back(brack);
 						/////// ENDING OF TREE
 					}
 					else {
@@ -255,9 +288,19 @@ static vector<Term*> tokenize(lexertk::generator lexed) {
 				else {
 
 					if (lexed[i + 2].value == "(") {
+						// check for brackets at the end
+						if (i + 3 >= lexed.size()) {
+							// invalid, having opening bracks at the end
+							tok_log->operator<<("There can't be opening bracks at the end!");
+							return {};
+						}
 						// bracket detected
 						tok.begin += 2;
-						result.push_back(tokenize_bracket(lexed, &tok, lex.value + after_lex.value));
+						auto brack = tokenize_bracket(lexed, &tok, lex.value + after_lex.value);
+						if (brack == nullptr) {
+							return {};
+						}
+						result.push_back(brack);
 						/////// ENDING OF TREE
 					}
 					else {
@@ -271,10 +314,20 @@ static vector<Term*> tokenize(lexertk::generator lexed) {
 				}
 			}
 			else if (isBrackets(after_lex.value[0]) && isBracketsOpening(after_lex.value[0])) {
+				// check for brackets at the end
+				if (i + 2 >= lexed.size()) {
+					// invalid, having opening bracks at the end
+					tok_log->operator<<("There can't be opening bracks at the end!");
+					return {};
+				}
 				// check for brackets,
 				// if so tokenize the brackets
 				tok.begin++; // consume the coefficient
-				result.push_back(tokenize_bracket(lexed, &tok, lex.value));
+				auto brack = tokenize_bracket(lexed, &tok, lex.value);
+				if (brack == nullptr) {
+					return {};
+				}
+				result.push_back(brack);
 				/////// ENDING OF TREE
 			}
 			else if (isPower(after_lex.value[0])) {
@@ -282,17 +335,26 @@ static vector<Term*> tokenize(lexertk::generator lexed) {
 				// if so read the power and its constant
 				// powers ONLY can be numbers no evaluation is done in the power
 				// ex: 5^2*3 // the expression will be 5 by 5 then multiply 3
-				if (!is_all_digits(lexed[i + 2].value)) {
-					cout << "ONLY numbers are allowed in powers!" << endl;
-					system("PAUSE");
-					exit(0);
+				if (!is_all_digits(lexed[i + 3].value)) {
+					tok_log->operator<<("ONLY numbers are allowed in powers!");
+					return {};
 					/////// ENDING OF TREE
 				}
 
 				// check for brackets
 				if (lexed[i + 3].value == "(") {
+					// check for brackets at the end
+					if (i + 5 >= lexed.size()) {
+						// invalid, having opening bracks at the end
+						tok_log->operator<<("There can't be opening bracks at the end!");
+						return {};
+					}
 					tok.begin += 3;
-					result.push_back(tokenize_bracket(lexed, &tok, lex.value + after_lex.value + lexed[i + 2].value));
+					auto brack = tokenize_bracket(lexed, &tok, lex.value + after_lex.value + lexed[i + 2].value);
+					if (brack == nullptr) {
+						return {};
+					}
+					result.push_back(brack);
 				}
 				else {
 					Constant* Const = nullptr;
@@ -319,15 +381,14 @@ static vector<Term*> tokenize(lexertk::generator lexed) {
 			if (isPower(after_lex.value[0])) {
 				// powers ONLY can be numbers no evaluation is done in the power
 				// ex: 5^2*3 // the expression will be 5 by 5 then multiply 3
-				if (!is_all_digits(lexed[i + 2].value)) {
-					cout << "ONLY numbers are allowed in powers!" << endl;
-					system("PAUSE");
-					exit(0);
+				if (!is_all_digits(lexed[i + 3].value)) {
+					tok_log->operator<<("ONLY numbers are allowed in powers!");
+					return {};
 					/////// ENDING OF TREE
 				}
 
 				Variable* Var = nullptr;
-				Var = new Variable(1.0, lex.value[0], lexed[i + 2].value[0]);
+				Var = new Variable(1.0, lex.value[0], atof(&lexed[i + 3].value[0]));
 				result.push_back(Var);
 				tok.end = i + 2;
 				/////// ENDING OF TREE
@@ -342,8 +403,17 @@ static vector<Term*> tokenize(lexertk::generator lexed) {
 			}
 		}
 		else if (isBracketsOpening(lex.value[0])) {
+			// check for brackets at the end
+			if (i+1 >= lexed.size()) {
+				// invalid, having opening bracks at the end
+				tok_log->operator<<("There can't be opening bracks at the end!");
+				return {};
+			}
 			// bracket
-			result.push_back(tokenize_bracket(lexed, &tok, ""));
+			auto brack = tokenize_bracket(lexed, &tok, "");
+			if (brack == nullptr)
+				return {};
+			result.push_back(brack);
 		}
 		else if (isArithmitic(lex.value[0])) {
 			// operator
@@ -352,7 +422,6 @@ static vector<Term*> tokenize(lexertk::generator lexed) {
 			op = new Operator(lex.value[0]);
 			result.push_back(op);
 			tok.end = i;
-
 		}
 		else if (isEqualChar(lex.value[0])) {
 			// equal sign

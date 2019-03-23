@@ -4,10 +4,48 @@ void Solver::Parse(string equation) {
 	mEquation = new Equation();
 	lexertk::generator lexer;
 	lexer.process(equation);
+	mEquation->log = log;
 	mEquation->Parse(lexer);
+	if (mEquation->lwing.empty() || mEquation->rwing.empty()) {
+		mIncorrect = true;
+	}
+	else mIncorrect = false;
 }
 
 Equation * Solver::Solve() {
+	if (mIncorrect) return nullptr;
+	// Break Brackets
+	// Lwing
+	mEquation->lwing = RemoveBrackets(mEquation->lwing);
+	// Rwing
+	mEquation->rwing = RemoveBrackets(mEquation->rwing);
+
+	if (mEquation->lwing.empty() ||
+		mEquation->rwing.empty())
+		return {};
+
+	// Add operators
+	mEquation->lwing = AddNonEssientalOps(mEquation->lwing);
+	mEquation->rwing = AddNonEssientalOps(mEquation->rwing);
+
+	// Remove Exponenets
+	// Lwing
+	for (int i = 0; i < mEquation->lwing.size(); i++) {
+		if (mEquation->lwing[i]->mType == TermTypes::Const) {
+			mEquation->lwing[i] = QMEvalHelper::ReducePower(mEquation->lwing[i])[0];
+		}
+	}
+	// Rwing
+	for (int i = 0; i < mEquation->rwing.size(); i++) {
+		if (mEquation->rwing[i]->mType == TermTypes::Const) {
+			mEquation->rwing[i] = QMEvalHelper::ReducePower(mEquation->rwing[i])[0];
+		}
+	}
+
+	// Evaluate
+	mEquation->lwing = evaluate(mEquation->lwing);
+	mEquation->rwing = evaluate(mEquation->rwing);
+
 	// Put vars on one side and consts on another
 	mEquation = PutVarsInOneSide(mEquation);
 	mEquation = PutConstsInOneSide(mEquation);
@@ -22,6 +60,21 @@ Equation * Solver::Solve() {
 	return mEquation;
 }
 
+bool Solver::CheckEqu(string equation) {
+
+	if (!isContain(equation, '=')) {
+		log->operator<< ("Must Have Equal Sign for Correct Equation!");
+		system("PAUSE");
+		exit(0);
+	}
+
+	Equation* equ = new Equation();
+	lexertk::generator gen;
+	gen.process(equation);
+	equ->Parse(gen);
+	return CheckValidOps(equ);
+}
+
 vector<Term*> Solver::FlipTermSigns(vector<Term*> terms) {
 	vector<Term*> res;
 
@@ -34,8 +87,8 @@ vector<Term*> Solver::FlipTermSigns(vector<Term*> terms) {
 			if (brack->mConstant == nullptr) {
 				brack->mConstant = new Constant(-1, 1);
 			}
-			else 
-			brack->mConstant->mValue = -brack->mConstant->mValue;
+			else
+				brack->mConstant->mValue = -brack->mConstant->mValue;
 			res.push_back(brack);
 		}
 		else {
@@ -49,21 +102,59 @@ vector<Term*> Solver::FlipTermSigns(vector<Term*> terms) {
 }
 
 Equation * Solver::ApplyDiversionCalcs(Equation * equ) {
-	// Situations
+	// Situations:
 	// 2x = 50 -> x = 50/2, applies only if one var
+	// 4/3x=4 -> 4=4*4x -> 12x=4 -> x=4/12
 
-	auto lwing = RemNonEssientalOps(equ->lwing);
-	auto rwing = RemNonEssientalOps(equ->rwing);
+	auto lwing = RemoveBundle(equ->lwing);
+	auto rwing = RemoveBundle(equ->rwing);
+
+	if (lwing.size() == 3) {
+		if (rwing.size() == 1) {
+			if (lwing[1]->mOperator == '/') {
+				auto nomin = lwing[0];
+				auto domin = lwing[2];
+				auto right = rwing[0];
+
+				auto final_right = QMEvalHelper::Mul(domin, right);
+				lwing.clear();
+				rwing.clear();
+				lwing.push_back(nomin);
+				for (auto rwing_terms : final_right)
+					rwing.push_back(rwing_terms);
+
+				lwing.swap(rwing);
+
+
+				auto _domin = lwing[0]->mValue;
+				Bracket* brack = new Bracket();
+				for (int i = 0; i < rwing.size(); i++)
+					brack->mTerms.push_back(rwing[i]);
+				auto term = QMEvalHelper::Div(brack, new Constant(_domin, 1));
+				rwing.clear();
+				rwing = term;
+				lwing[0]->mValue = 1;
+
+				equ->lwing = lwing;
+				equ->rwing = rwing;
+				return equ;
+			}
+		}
+	}
+
+	lwing = RemNonEssientalOps(equ->lwing);
+	rwing = RemNonEssientalOps(equ->rwing);
 
 	if (lwing.size() == 1) {
 		// Check if x's coeffiecent is higher than 1 or lower
 		if (lwing[0]->mValue != 1 && lwing[0]->mPower == 1) {
 			// situation of "2x = 50 -> x = 50/2" is confirmed
+
 			auto domin = lwing[0]->mValue;
 			Bracket* brack = new Bracket();
 			for (int i = 0; i < rwing.size(); i++)
 				brack->mTerms.push_back(rwing[i]);
-			auto term = QMEvalHelper::Div(brack, new Constant(domin));
+			auto term = QMEvalHelper::Div(brack, new Constant((long double)domin, 1));
 			rwing.clear();
 			rwing = term;
 			lwing[0]->mValue = 1;
@@ -79,57 +170,83 @@ Equation * Solver::ApplyDiversionCalcs(Equation * equ) {
 bool Solver::CheckValidOps(Equation * equ) {
 
 	// Check Lwing
-	for (int i = 0; i < equ->lwing.size() - 1; i++) {
-		auto term = equ->lwing[i];
-		if (term->mType == TermTypes::Op) {
-			if (i == 0) {
-				if (term->mOperator == '/' || term->mOperator == '*') {
-					cout << "Can't have division or multiplication at the begining!" << endl;
-					system("PUASE");
-					exit(0);
+	if (!equ->lwing.empty()) {
+		// Check Ending
+		if (equ->lwing[equ->lwing.size() - 1]->mType == TermTypes::Op) {
+			log->operator<<("Can't have operatos at the end!");
+			return false;
+		}
+		
+		for (int i = 0; i < equ->lwing.size() - 1; i++) {
+			auto term = equ->lwing[i];
+			if (term->mType == TermTypes::Op) {
+				if (i == 0) {
+					if (term->mOperator == '/' || term->mOperator == '*') {
+						log->operator<<("Can't have division or multiplication at the begining!");
+						return false;
+					}
+					continue;
 				}
-				continue;
-			}
 
-			auto before_Term = equ->lwing[i - 1];
-			auto after_Term = equ->lwing[i + 1];
+				auto before_Term = equ->lwing[i - 1];
+				auto after_Term = equ->lwing[i + 1];
 
-			if (before_Term->mType == TermTypes::Op ||
-				after_Term->mType == TermTypes::Op) {
-				cout << "Can't have trialing operators!" << endl;
-				system("PUASE");
-				exit(0);
+				if (before_Term->mType == TermTypes::Op ||
+					after_Term->mType == TermTypes::Op) {
+					log->operator<<("Can't have trialing operators!");
+					return false;
+				}
 			}
 		}
 	}
 
 	// Check Rwing
-	for (int i = 0; i < equ->rwing.size() - 1; i++) {
-		auto term = equ->rwing[i];
-		if (term->mType == TermTypes::Op) {
-			if (i == 0) {
-				if (term->mOperator == '/' || term->mOperator == '*') {
-					cout << "Can't have division or multiplication at the begining!" << endl;
+	if (!equ->rwing.empty()) {
+		// Check Ending
+		if (equ->rwing[equ->rwing.size() - 1]->mType == TermTypes::Op) {
+			log->operator<<("Can't have operatos at the end!");
+			return false;
+		}
+
+		for (int i = 0; i < equ->rwing.size() - 1; i++) {
+			auto term = equ->rwing[i];
+			if (term->mType == TermTypes::Op) {
+				if (i == 0) {
+					if (term->mOperator == '/' || term->mOperator == '*') {
+						log->operator<<("Can't have division or multiplication at the begining!");
+						system("PUASE");
+						exit(0);
+					}
+					continue;
+				}
+
+				auto before_Term = equ->rwing[i - 1];
+				auto after_Term = equ->rwing[i + 1];
+
+				if (before_Term->mType == TermTypes::Op ||
+					after_Term->mType == TermTypes::Op) {
+					log->operator<<("Can't have trialing operators!");
 					system("PUASE");
 					exit(0);
 				}
-				continue;
-			}
-
-			auto before_Term = equ->rwing[i - 1];
-			auto after_Term = equ->rwing[i + 1];
-
-			if (before_Term->mType == TermTypes::Op ||
-				after_Term->mType == TermTypes::Op) {
-				cout << "Can't have trialing operators!" << endl;
-				system("PUASE");
-				exit(0);
 			}
 		}
 	}
 
-
 	return true;
+}
+
+bool Solver::CheckValidOps(vector<Term*> terms) {
+	Equation* equ = new Equation();
+	equ->lwing = terms;
+	return CheckValidOps(equ);
+}
+
+bool Solver::IsVarAval(vector<Term*> terms) {
+	for (auto term : terms)
+		if (term->mType == TermTypes::Var)
+			return true;
+	return false;
 }
 
 Equation * Solver::PutVarsInOneSide(Equation * equ) {
@@ -228,13 +345,16 @@ Equation * Solver::PutConstsInOneSide(Equation * equ) {
 		if (lwing[i]->mType == TermTypes::Bund) {
 			// check if it has a constant
 			Bundle* bundle = static_cast<Bundle*>(lwing[i]);
-			bool contains = false;
-			for (auto *term : bundle->mTerms)
-				if (term->mType == TermTypes::Const) { contains = true; continue; }
 
-			if (contains)
-				lwing_const.push_back(i);
-			continue;
+			if (!IsVarAval(bundle->mTerms)) {
+				bool contains = false;
+				for (auto *term : bundle->mTerms)
+					if (term->mType == TermTypes::Const) { contains = true; continue; }
+
+				if (contains)
+					lwing_const.push_back(i);
+				continue;
+			}
 		}
 		if (lwing[i]->mType == TermTypes::Const)
 			lwing_const.push_back(i);
@@ -294,6 +414,11 @@ vector<Term*> Solver::RemNonEssientalOps(vector<Term*> terms) {
 	vector<Term*> res;
 	for (int i = 0; i < terms.size(); i++) {
 		auto term = terms[i];
+		if (term->mType == TermTypes::Brack) {
+			auto resultant = RemNonEssientalOps(QMEvalHelper::BreakBracket(static_cast<Bracket*>(term)));
+			for (auto __term : resultant) res.push_back(__term);
+			continue;
+		}
 		if (term->mType == TermTypes::Op) {
 			if (term->mOperator == '+') {
 				auto after_term = terms[i + 1];
@@ -303,15 +428,15 @@ vector<Term*> Solver::RemNonEssientalOps(vector<Term*> terms) {
 				continue;
 			}
 			if (term->mOperator == '-') {
-				auto after_term = terms[i+1];
+				auto after_term = terms[i + 1];
 				after_term->mValue = after_term->mValue * -1;
 				res.push_back(after_term);
 				i++;
 				continue;
 			}
-			
+
 			if (term->mOperator == '*') {
-				auto before_term = *res.end();
+				auto before_term = *(res.end() - 1);
 				res.pop_back();
 				auto after_term = terms[i + 1];
 				Bundle* bundle = new Bundle();
@@ -324,9 +449,9 @@ vector<Term*> Solver::RemNonEssientalOps(vector<Term*> terms) {
 			}
 
 			if (term->mOperator == '/') {
-				auto before_term = *(--res.end());
+				auto before_term = *(res.end() - 1);
 				res.pop_back();
-				auto after_term = terms[i+1];
+				auto after_term = terms[i + 1];
 				Bundle* bundle = new Bundle();
 				bundle->mTerms.push_back(before_term);
 				bundle->mTerms.push_back(term);
@@ -338,7 +463,7 @@ vector<Term*> Solver::RemNonEssientalOps(vector<Term*> terms) {
 		}
 		res.push_back(term);
 	}
-	
+
 	return res;
 }
 vector<Term*> Solver::AddNonEssientalOps(vector<Term*> terms) {
@@ -358,10 +483,13 @@ vector<Term*> Solver::AddNonEssientalOps(vector<Term*> terms) {
 		}
 
 		if (term->mType == TermTypes::Brack) {
-			res.push_back(term);
+			auto resultant =
+				AddNonEssientalOps(QMEvalHelper::BreakBracket(static_cast<Bracket*>(term)));
+
+			for (auto *__term : resultant) res.push_back(__term);
 			continue;
 		}
-		
+
 		// check if term was positive
 		if (term->mValue > 0) {
 			res.push_back(new Operator('+'));
@@ -401,12 +529,12 @@ vector<Term*> Solver::BundleTermsDuo(vector<Term*> terms) {
 			if (term->mOperator == '/') {
 				if (i == 0) {
 					// invalid cant have division at begining
-					cout << "Can't have division at begining!" << endl;
+					log->operator<<("Can't have division at begining!");
 					system("PAUSE");
 					exit(0);
 				}
-				auto before_term = terms[i-1];
-				auto after_term = terms[i +1];
+				auto before_term = terms[i - 1];
+				auto after_term = terms[i + 1];
 				Bundle* bundle = new Bundle();
 				bundle->mTerms.push_back(before_term);	// t1
 				bundle->mTerms.push_back(term);			// op
@@ -420,11 +548,11 @@ vector<Term*> Solver::BundleTermsDuo(vector<Term*> terms) {
 				if (term->mOperator == '*') {
 					if (i == 0) {
 						// invalid cant have multiplication at begining
-						cout << "Can't have multiplication at begining!" << endl;
+						log->operator<<("Can't have multiplication at begining!");
 						system("PAUSE");
 						exit(0);
 					}
-					auto before_term = terms[i-1];
+					auto before_term = terms[i - 1];
 					auto after_term = terms[i + 1];
 					Bundle* bundle = new Bundle();
 					bundle->mTerms.push_back(before_term);	// t1
@@ -459,7 +587,7 @@ vector<Term*> Solver::BundleTermsTri(vector<Term*> terms) {
 			if (term->mOperator == '/') {
 				if (i == 0) {
 					// invalid cant have division at begining
-					cout << "Can't have division at begining!" << endl;
+					log->operator<<("Can't have division at begining!");
 					system("PUASE");
 					exit(0);
 				}
@@ -478,7 +606,7 @@ vector<Term*> Solver::BundleTermsTri(vector<Term*> terms) {
 				if (term->mOperator == '*') {
 					if (i == 0) {
 						// invalid cant habe multiplication at begining
-						cout << "Can't have multiplication at beginign!" << endl;
+						log->operator<<("Can't have multiplication at beginign!");
 						system("PAUSE");
 						exit(0);
 					}
@@ -518,7 +646,7 @@ bool Solver::IsEqualBundle(Bundle * b1, Bundle * b2) {
 	if (b1_copy.size() != b2_copy.size()) return false;
 
 	for (int i = 0; i < b1_copy.size(); i++)
-		if (!QMEvalHelper::IsEquTerms(b1_copy[i], b2_copy[i])) 
+		if (!QMEvalHelper::IsEquTerms(b1_copy[i], b2_copy[i]))
 			return false;
 
 	return true;

@@ -40,4 +40,24 @@ private:
 };
 
 
+class ExprTreeReversed {
+public:
+	void setPool(vector<Term*> pool);
+	void GenerateTree();
+
+	void print();
+
+	TreeNode* getHead() { return mHead; }
+
+private:
+	TreeNode* _genTree(TermPool pool);
+	void _print(const std::string prefix, const TreeNode* node, bool isLeft);
+
+	TreeNode* mHead = nullptr;
+	TermPool mPool;
+};
+
+
+
+
 #endif // !EXPR_TREE_H
