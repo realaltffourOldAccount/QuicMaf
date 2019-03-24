@@ -67,7 +67,6 @@ void Solve::OnInputChange(wxCommandEvent & evt) {
 		case '$':
 		case '%':
 		case '&':
-		case '*':
 		case '|':
 		case '{':
 		case '}':

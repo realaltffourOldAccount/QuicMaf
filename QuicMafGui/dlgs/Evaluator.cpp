@@ -55,7 +55,6 @@ void Evaluator::OnInputChange(wxCommandEvent & evt) {
 		case '$':
 		case '%':
 		case '&':
-		case '*':
 		case '|':
 		case '{':
 		case '}':
